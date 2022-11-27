@@ -1,0 +1,101 @@
+# Jade Supino
+# CSIT 571 Programming Project
+
+import sys
+# create a list of all the states
+states = ["New Jersey", "Pennsylvania", "Ohio", "West Virginia", "Indiana", "Kentucky", "Illinois", "Missouri",
+        "Iowa", "Kansas", "Nebraska", "Colorado"]
+# create a dictionary of all the states and the associated weights between each state
+    # states = nodes and roads = edges
+    # the weights represent the number of hours to get from the middle of one state to the middle of the next
+map = {}
+for state in states:
+    map[state] = {}
+map["New Jersey"]["Pennsylvania"] = 4
+map["Pennsylvania"]["Ohio"] = 5
+map["Pennsylvania"]["West Virginia"] = 6
+map["West Virginia"]["Ohio"] = 5
+map["Ohio"]["Indiana"] = 3
+map["West Virginia"]["Kentucky"] = 4
+map["Kentucky"]["Indiana"] = 4
+map["Indiana"]["Illinois"] = 3
+map["Kentucky"]["Missouri"] = 7
+map["Missouri"]["Illinois"] = 4
+map["Illinois"]["Iowa"] = 4
+map["Missouri"]["Kansas"] = 7
+map["Kansas"]["Iowa"] = 7
+map["Iowa"]["Nebraska"] = 6
+map["Kansas"]["Nebraska"] = 4
+map["Nebraska"]["Colorado"] = 6
+map["Kansas"]["Colorado"] = 7
+# decalre a class of the states in the map (graph)
+class StateMap:
+    def __init__(self, states, map):
+        self.states = states
+        self.dict = self.build_map(states, map)
+# build the map, ensuring that it is undirected
+    def build_map(self, states, map):
+        dict = {}
+        for state in states:
+            dict[state] = {}
+        dict.update(map)
+        for state, road in dict.items():
+            for adjacent_state, hours in road.items():
+                if dict[adjacent_state].get(state, False) == False:
+                    dict[adjacent_state][state] = hours     
+        return dict
+# find the states
+    def the_states(self):
+        return self.states
+# find the roads and linked states
+    def the_roads(self, state):
+        linked_states = [] #list of linked states
+        for other_state in self.states:
+            if self.dict[state].get(other_state, False) != False:
+                linked_states.append(other_state)
+        return linked_states
+# find the number of hours it takes between two states
+    def hours(self, state1, state2):
+        return self.dict[state1][state2]
+# implement Dijkstra's
+def dijkstra(dict, start_state):
+    unvisited_states = list(dict.the_states())
+    shortest = {}
+    previous_states = {}
+# univisted states are initialized to the maxsize hours because these states have not be visited yet
+    max_hours = sys.maxsize 
+    for state in unvisited_states:
+        shortest[state] = max_hours
+# initalize the starting state to a value of 0, meaning this is hour 0
+    shortest[start_state] = 0
+    # create a while loop to find all the unvisited states
+    while unvisited_states:
+        current_state = None
+        for state in unvisited_states:
+            if current_state == None:
+                current_state = state
+            elif shortest[state] < shortest[current_state]:
+                current_state = state
+# find the bordering states of the current state so the distances between them can be updated
+        bordering_state = dict.the_roads(current_state)
+        for border in bordering_state:
+            temp_value = shortest[current_state] + dict.hours(current_state, border)
+            if temp_value < shortest[border]:
+                shortest[border] = temp_value
+                previous_states[border] = current_state
+        unvisited_states.remove(current_state)
+    return previous_states, shortest
+# create a list of the shortest path between the starting state (NJ) and the destination (Colorado)
+def shorthest_path(previous_states, shortest, start_state, destination):
+    shortest_path_list = [] #store the shortest path in a list
+    state = destination 
+    while state != start_state:
+        shortest_path_list.append(state)
+        state = previous_states[state]
+    shortest_path_list.append(start_state)
+    # print the result of the shortest distance and path
+    print("The shortest distance, or minimum number of hours, from New Jersey to Colorado is approximately {} hours.".format(shortest[destination]))
+    print("The path of states:"," to ".join(reversed(shortest_path_list)))
+dict = StateMap(states, map)
+previous_states, shortest = dijkstra(dict=dict, start_state="New Jersey")
+shorthest_path(previous_states, shortest, start_state="New Jersey", destination="Colorado")
