@@ -1,8 +1,6 @@
 # Programming Project
 ###### Jade Supino
 
-Programming project for Computer Algorithms and Analysis course.
-
 Using Dijkstra’s algorithm, a Python program is implemented that computes the shortest distance of an undirected weighted graph, as shown in Figure 1.
 Once the algorithm executes, the shortest path will be returned. This identifies the shortest path from New Jersey to Colorado and how mnay hours it will take.
 
